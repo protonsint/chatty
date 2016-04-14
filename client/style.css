@@ -84,6 +84,7 @@ body {
     height: 300px;
     float: left;
     border-top: 3px solid #0B323D;
+	overflow: hidden;
 }
 #messages > h2 {
     margin: 0;
@@ -101,18 +102,17 @@ body {
 	font-size: 16px;
 }
 .message.chat {
-    color: #fff;
+    color: #6394A1;
 }
 .message.echo {
-    color: #ddd;
+    color: #6394A1;
 }
 .message.info {
-    color: #ccc;
+    color: #555;
     border-bottom: 1px solid black;
 }
 .message.error {
-    background-color: #9C473A;
-    color: red;
+    color: #f00;
     border-bottom: 1px solid black;
 }
 
