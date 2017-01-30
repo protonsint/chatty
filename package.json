@@ -19,9 +19,8 @@
     },
 
     "dependencies": {
-        "optimist": "0.3.x",
-        "socket.io": "0.9.16",
-        "express": "3.x"
+            "express": "^4.9.0",
+            "socket.io": "^1.1.0"
     },
     "devDependencies": {},
     "bundleDependencies": [],
