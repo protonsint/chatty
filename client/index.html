@@ -1,57 +1,247 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-    <head>
-        <meta charset="utf-8"/>
-        <title>chatty</title>
-        <link href="/client/style.css" rel="stylesheet"/>
-        <script src="/socket.io/socket.io.js"></script>
-        <script src="/client/lib/jquery.js"></script>
-        <script src="/common/handlebars.js"></script>
-        <script src="/common/models.js"></script>
-        <script src="/varSocketURI.js"></script>
-        <script src="/client/code.js"></script> 
+<head>
+   	<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+	<link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css"> 
+	
+	<script src="/socket.io/socket.io.js"></script>
+	<script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	
+	<style>
+
+
+	<!-- Square card -->
+
+	.demo-card-square.mdl-card {
+	  width: 320px;
+	  height: 320px;
+	}
+
+	#createTagDialog{
+		display:none;
+	}
+	#chatroomDialog{
+		display:none;
+	}
+	#showTagbutton{
+		display:none;
+	}
+	
+	
+
+	</style>
+	
+
+<script>
+
+
+	
+var socket;
+
+
+function ConnectFunction(){
+	var userNameText=$('#userNameText').val();
+	if(userNameText.length>0){
+		socket = io.connect('http://localhost:8080');
 		
-		<!-- 
-		<link href="style.css" rel="stylesheet"/>
-        <script src="/socket.io/socket.io.js"></script>
-        <script src="lib/jquery.js"></script>
-        <script src="/common/handlebars.js"></script>
-        <script src="/common/models.js"></script>
-        <script src="/varSocketURI.js"></script>
-        <script src="code.js"></script>
-		-->
+		socket.on('connect', function(){
+				socket.emit('adduser', userNameText);
+				alert("connected");
+		});
+		$('#getUserNameDialog').hide();
+		$('#chatroomDialog').show();
+		$('#showTagbutton').show();
+
+		socket.on('updatechat', function (username, data) {
+			$('#conversation').append('<b>'+ username + ':</b> ' + data + '<br>');
+		});
+
+		socket.on('updaterooms', function (rooms, current_room) {
+			$('#rooms').empty();
+			$.each(rooms, function(key, value) {
+				if(value == current_room){
+					$('#rooms').append('<a class="mdl-button">'+ value+ '</a>' );
+				}
+				else {
+					$('#rooms').append('<a class="mdl-navigation__link" href="#" onclick="switchRoom(\''+value+'\')">' + value + '</a>');
+				}
+			});
+		});
+
+	}
+	else{
+		alert("Please enter your name..")
+		return;
+	}
+	
+}
+
+
+
+function switchRoom(room){
+    socket.emit('switchRoom', room);
+
+	//Collapse sidebar
+	var d = document.querySelector('.mdl-layout');
+	d.MaterialLayout.toggleDrawer();
+}
+
+
+$( document ).ready(function() {
+
+    $('#datasend').click( function() {
+        var message = $('#data').val();
+        $('#data').val('');
+        socket.emit('sendchat', message);
+    });
+
+    $('#data').keypress(function(e) {
+        if(e.which == 13) {
+            $(this).blur();
+            $('#datasend').focus().click();
+        }
+    });
+
+	$('#showTagbutton').click(function(){
+		$('#createTagDialog').show();
+	});
+	
+    $('#createTagButton').click(function(){
+        var name = $('#tagNameText').val();
+        $('#tagNameText').val('');
+        socket.emit('create', name);
+		$('#createTagDialog').hide();
+    });
+	
+	$('#cancelTagButton').click(function(){
+		$('#createTagDialog').hide();
+	});
+	
+
+	
+});
+
+
+
+</script>
+</head>
+<body>
+
+   <!-- Always shows a header, even in smaller screens. -->
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+  <header class="mdl-layout__header">
+    <div class="mdl-layout__header-row">
+	<button id="showTagbutton" class="mdl-button mdl-js-button mdl-button--icon">
+		  <i class="material-icons">add</i>
+	</button>
+      <!-- Title -->
+      <span class="mdl-layout-title">Broadcasit</span>
+      <!-- Add spacer, to align navigation to the right -->
+	  
+
 		
-        <script id="message-template" type="text/x-handlebars-template">
-<li class='message {{type}}'>
-    ({{user.name}}): {{message}}
-</li>
-        </script>
-        <script id="userlist-template" type="text/x-handlebars-template">
-{{#each users}}
-<li>{{name}}</li>
-{{/each}}
-        </script>
-    </head>
-    <body>
-        <div id="header">
-             <h1> </h1> 
-        </div>
-        <div id="main">
-            
-            <div id="messages">
-                <h2>Messages</h2>
-                <ul></ul>
-            </div>
-            <div id="users">
-                <h2>Users</h2>
-                <ul></ul>
-            </div>
-			<form id="status-update-form" action="javascript:void(0);" novalidate="novalidate">
-                <div>
-                    <input type="text" required autofocus placeholder="type a message, hit return"/>
-                    <button type="button">leave the chatroom</button>
-                </div>
-            </form>
-        </div>
-    </body>
-</html>
+		
+	 
+      <div class="mdl-layout-spacer"></div>
+      <!-- Navigation. We hide it in small screens. -->
+     <!--  <nav class="mdl-navigation mdl-layout--large-screen-only">
+        <a class="mdl-navigation__link" href="">Link</a>
+      </nav> -->
+	  
+	  <!-- Colored FAB button with ripple -->
+
+
+
+    </div>
+  </header>
+  <div class="mdl-layout__drawer">
+    <span class="mdl-layout-title">Tags</span>
+    <nav class="mdl-navigation" id="rooms">
+    <!--   <a class="mdl-navigation__link" href="">Link</a>-->
+    </nav>
+  </div>
+  <main class="mdl-layout__content">
+  
+  
+  <div class="mdl-grid">
+
+  
+    <div class="page-content mdl-cell"><!-- Your content goes here -->
+	
+	
+	   <div id="getUserNameDialog" class="demo-card-square mdl-card mdl-shadow--2dp" >
+ <!--  <div class="mdl-card__title mdl-card--expand">
+    <h2 class="mdl-card__title-text">Update</h2>
+  </div> -->
+  <div class="mdl-card__supporting-text"><strong>What is your Name?</strong></div>
+  <div class="mdl-card__actions mdl-card--border">
+  
+  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+    <input class="mdl-textfield__input" type="text" id="userNameText">
+    <label class="mdl-textfield__label" for="userNameText">Name...</label>
+  </div>
+  
+    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="ConnectFunction()">
+      Join.
+    </button>
+  </div>
+</div>
+	
+	
+
+	
+	<div id="createTagDialog" class="demo-card-square mdl-card mdl-shadow--2dp" >
+
+  <div class="mdl-card__supporting-text"><strong>Create Tag</strong></div>
+  <div class="mdl-card__actions mdl-card--border">
+  
+  <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+    <input class="mdl-textfield__input" type="text" id="tagNameText">
+    <label class="mdl-textfield__label" for="tagNameText">Tag Name...</label>
+  </div>
+  
+    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id="createTagButton" >
+      Create Tag
+    </button>
+	
+	
+	<button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" id="cancelTagButton" >
+      Cancel
+    </button>
+	
+	
+  </div>
+</div>
+	
+	
+	
+	
+	
+	
+	
+	
+	 <div id="chatroomDialog" class="demo-card-square mdl-card mdl-shadow--2dp" >
+
+  <div class="mdl-card__actions mdl-card--border">
+	
+	<div id="conversation"></div>
+	<div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+		<input class="mdl-textfield__input" type="text" id="data">
+		<label class="mdl-textfield__label" for="data">Type ...</label>
+	</div>
+	<button id="datasend" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Send</button>
+  </div>
+</div>
+	
+
+	</div>
+
+</div>
+  </main>
+</div>
+   
+   
+
+</body>
+<html>
