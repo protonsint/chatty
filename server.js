@@ -6,7 +6,7 @@ var io = socket.listen(app);
 
 // Configuration
 app.configure(function(){
-  app.use(express.static(__dirname + '/main'));
+  app.use(express.static(__dirname + '/client'));
 });
 
 var port = process.env.PORT || 8080;
