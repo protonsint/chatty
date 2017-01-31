@@ -10,10 +10,15 @@ app.configure(function(){
 });
 
 //var port = process.env.PORT || 8080;
-var port = process.env.OPENSHIFT_INTERNAL_PORT || process.env.OPENSHIFT_NODEJS_PORT  || 8080;
-app.listen(port, function() {
+
+var ip = process.env.OPENSHIFT_NODEJS_IP || '127.0.0.1';
+var port = process.env.OPENSHIFT_NODEJS_PORT || 3000;	
+app.listen(port,ip);
+
+
+/* app.listen(port, function() {
   console.log("Express server listening on port %d", app.address().port);
-});
+}); */
 
 var usernames = {};
 
